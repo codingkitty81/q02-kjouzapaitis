@@ -22,6 +22,8 @@
 **/
 Piezas::Piezas()
 {
+    board = std::vector< std::vector<Piece> >(BOARD_ROWS, std::vector<Piece>(BOARD_COLS, Blank));
+    turn = X;
 }
 
 /**
@@ -30,6 +32,11 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+    for(std::vector< std::vector<Piece> >::iterator it = board.begin(); it != board.end(); ++it) {
+        for(std::vector<Piece>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2) {
+            (*it2) = Blank;
+        }
+    }
 }
 
 /**
@@ -42,7 +49,36 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
-    return Blank;
+    if(column < 0 || column > BOARD_COLS) {
+        return Invalid;
+    }
+    
+    Piece temp;
+    
+    if(board[0][column] == Blank) {
+        board[0][column] = turn;
+        temp = turn;
+    } else if(board[1][column] == Blank) {
+        board[1][column] = turn;
+        temp = turn;
+    } else if(board[2][column] == Blank) {
+        board[2][column] = turn;
+        temp = turn;
+    } else {
+        temp = Blank;
+    }
+    
+    if(turn == X) {
+        turn = O;
+    } else {
+        turn = X;
+    }
+    
+    if(temp == Blank) {
+        return Blank;
+    } else {
+        return temp;
+    }
 }
 
 /**
@@ -51,7 +87,17 @@ Piece Piezas::dropPiece(int column)
 **/
 Piece Piezas::pieceAt(int row, int column)
 {
-    return Blank;
+    if(row < 0 || row > BOARD_ROWS || column < 0 || column > BOARD_COLS) {
+        return Invalid;
+    }
+    
+    if(board[row][column] == X) {
+        return X;
+    } else if(board[row][column] == O) {
+        return O;
+    } else {
+        return Blank;
+    }
 }
 
 /**
@@ -65,5 +111,60 @@ Piece Piezas::pieceAt(int row, int column)
 **/
 Piece Piezas::gameState()
 {
-    return Blank;
+    int maxX = 0;
+    int maxO = 0;
+    int countX = 0;
+    int countO = 0;
+    
+    //check rows
+    for(int i = 0; i < BOARD_ROWS; i++) {
+        for(int j = 0; j < BOARD_COLS; j++) {
+            if(board[i][j] == X) {
+                countX++;
+            } else if(board[i][j] == O) {
+                countO++;
+            } else {
+                return Invalid;
+            }
+        }
+        
+        if(countX > maxX) {
+            maxX = countX;
+        } else if(countO > maxO) {
+            maxO = countO;
+        }
+        
+        countX = 0;
+        countO = 0;
+    }
+    
+    //check columns
+    for(int j = 0; j < BOARD_COLS; j++) {
+        for(int i = 0; i < BOARD_ROWS; i++) {
+            if(board[i][j] == X) {
+                countX++;
+            } else if(board[i][j] == O) {
+                countO++;
+            } else {
+                return Invalid;
+            }
+        }
+        
+        if(countX > maxX) {
+            maxX = countX;
+        } else if(countO > maxO) {
+            maxO = countO;
+        }
+        
+        countX = 0;
+        countO = 0;
+    }
+    
+    if(maxX > maxO) {
+        return X;
+    } else if(maxO > maxX) {
+        return O;
+    } else {
+        return Blank;
+    }
 }
